@@ -86,7 +86,7 @@ void RSIndex::createRIndex()
 	rIndex = new u64[rIndexLen];//R索引表
 	memset(rIndex,0,sizeof(u64)*rIndexLen);
 
-	u64 ri = 0;
+	u64 ri = 0,cnt = 0;
 	u64 rankl = 0,ranks = 0;
 	rIndex[0] = 0;//第一个大块表的值为0，因为第一个大块前面没有bit
 	for(u64 i = 0; i < rlen; i++)
@@ -103,12 +103,15 @@ void RSIndex::createRIndex()
 			rIndex[ri+2] = rankl;
 			ri += 2;
 			ranks = 0;
+			cnt = 0;
 		}
-		else if(i%2 && i%16 != 15)
+		else if(i%2)
 		{//每个小块存储一个ranks
-			rIndex[ri+1] = rIndex[ri+1]<<9;
-			rIndex[ri+1] += ranks;
+			//rIndex[ri+1] = rIndex[ri+1]<<9;
 			rankl += ranks;
+			ranks = ranks<<(9*(6-cnt));
+			rIndex[ri+1] += ranks;
+			cnt++;
 			ranks = 0;
 		}		
 	}
