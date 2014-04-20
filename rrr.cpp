@@ -3,6 +3,7 @@
 #include "rstable.hpp"
 #include "rsindex.hpp"
 #include "rrr.hpp"
+#include <string.h>
 #include <iostream>
 
 using namespace std;
@@ -51,17 +52,37 @@ RRR::~RRR()
 
 void RRR::compress()
 {
-	RSTable *rsTable = new RSTable(bitvec,len);
+	rsTable = new RSTable(bitvec,len);
 	rsTable->createTable();
 	r = rsTable->getR();
 	s = rsTable->getS();
 	cout<<"compress size is :"<<(double)((rsTable->getRLen() + rsTable->getSLen()) * 64)/(double)len<<endl;
 }
 
+u64* RRR::getCompressData()
+{
+	u64 rlen = rsTable->getRLen(); 
+	u64 slen = rsTable->getSLen();
+	u64 datalen = rlen + slen;//要返回的空间长度
+	u64 *data = new u64[datalen];
+	memset(data,0,sizeof(u64)*datalen);
+	for(u64 i = 0; i < datalen; i++)
+	{
+		if(i < rlen)
+			data[i] = r[i];
+		else
+			data[i] = s[i-rlen];
+	}
+	delete rsTable;//删除重复的r,s表
+	r = data;
+	s = &data[rlen];
+	return data;
+}
+
 void RRR::createIndex()
 {
-	RSTable *rsTable = new RSTable(bitvec,len);
-	rsTable->createTable();
+	/*RSTable *rsTable = new RSTable(bitvec,len);
+	rsTable->createTable();*/
 	RSIndex *rsIndex = new RSIndex(rsTable);
 	rsIndex->createRSIndex();
 	rIndex = rsIndex->getRIndex();
@@ -137,14 +158,21 @@ u64 RRR::rank(u64 i)
 	sx = sIndex[i/SBSIZE];
 	start = sx + sxlen;
 	u64 o = getBits(s,start,os->getOLen(c));
-
 	//根据c,o求取原始串
-	u16 x;
+	u32 x;
 	if(c>0)
 		//x = d[kind[c-1] + o];
 		x = dk->getD(dk->getK(c-1) + o);
 	else
 		x = 0;
-	cnt += popcount((u64)(x&(~((1<<(16-i%15))-1))));
+	cnt += popcount((u64)(x&(~((1<<(15-i%15))-1))));
 	return cnt;
+}
+
+u64 RRR::get(u64 index)
+{
+	if(rank(index-1) != rank(index))
+		return 1;
+	else
+		return 0;
 }

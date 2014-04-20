@@ -37,7 +37,11 @@ public:
 	* 为压缩后的结构创建索引
 	*/
 	void createIndex();
-
+	
+	/**
+	* @ return 返回压缩后的数据
+	*/
+	u64* getCompressData();
 
 	/**
 	* rank查询
@@ -45,6 +49,14 @@ public:
 	* @ return 返回0到index-1中1的个数
 	*/
 	u64 rank(u64 index);
+
+	/**
+	* get查询
+	* @ index 位置
+	* @ return 返回index位的0,1位置
+	*/
+	u64 get(u64 index);
+
 /*private:
 	void createD();*/
 
@@ -60,6 +72,7 @@ private:
 	const u64 *sIndex;//S表索引
 	u64 *bitvec;
 	u64 len;
+	RSTable *rsTable;
 };
 
 #endif
