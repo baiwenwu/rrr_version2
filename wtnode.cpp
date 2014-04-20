@@ -19,7 +19,7 @@ WT_Node::WT_Node(u64 *bitbuff, int len, int level, int block_size, unsigned char
 	}
 	else
 	{
-		data = NULL
+		data = NULL;
 	}
 }
 
