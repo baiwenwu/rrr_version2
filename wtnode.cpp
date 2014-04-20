@@ -17,6 +17,10 @@ WT_Node::WT_Node(u64 *bitbuff, int len, int level, int block_size, unsigned char
 		rrr->createIndex();//后创建索引
 		data = rrr->getCompressData();//将压缩后的数据放到当前数据段，并且释放原来的数据
 	}
+	else
+	{
+		data = NULL
+	}
 }
 
 WT_Node::~WT_Node()
