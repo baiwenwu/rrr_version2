@@ -77,11 +77,11 @@ void RSTable::createRTable()
 		for(u64 j = 0; j < 16; j++)
 		{//每16个c组成一个64位的字
 			t = t << 4;
-			if(i*15 + 15 <= len)
+			if(i*15*16+j*15 + 15 <= len)
 			{//取出的位未越界
 				t += popcount(getBits(bitvec,i*15*16+j*15,15));
 			}
-			else if(i*15 < len)
+			else if(i*15*16+j*15 <= len && i*15*16+j*15 + 15>len)
 			{//取出的位部分越界
 				t += popcount(getBits(bitvec,i*15*16+j*15,len - i*15*16 - j*15));
 			}
@@ -125,16 +125,18 @@ void RSTable::createSTable()
 		{ 
 			t = (r[i]>>(j<<2))&0x000f;//得到类t
 			//u64 tvalue = os->getO(t);//类t对应的值C(15,t)
-			u64 tvalue = getBits(bitvec,i*15*16+(15-j)*15,15);
+			u64 tvalue;
+			if(i*15*16+(15-j)*15 <= this->len)
+				tvalue = getBits(bitvec,i*15*16+(15-j)*15,15);
+			else 
+				tvalue = 0;
 			u64 tlen = os->getOLen(t);//类t对应的值所需的bit长度log(C(15,t))
 			setBits(s,cnt,cmap->getCmap(tvalue),tlen);//这里不是tvalue，应该是相对偏移量，存储长度不变
-
 			cnt += tlen;
 			if(j == 0)
 				break;
 		}
 	}
-	
 }
 
 void RSTable::createTable()
